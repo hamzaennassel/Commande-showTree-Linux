@@ -1,0 +1,197 @@
+
+#!/bin/bash
+
+che=$(pwd)       # che contient le chemin du repertoire de connection
+declare -i d=0; #declarer un entier d 
+if [[ -e "$3" ]];then   #tester si le 3eme agrument exist
+          #initialiser le variable j  par la valeur du 3eme agrument -1   
+        j=$(($3-1));     
+else
+        j=1000          #initialiser le variable j  par 1000 comme infini 
+fi
+f=0
+de=0
+function liste {   #debut de la fonction liste
+        # entrer dans le repertoire passer en parametre
+        cd "$1";
+        # boucler sur le nombre du fichier  existe dans le repertoire courant
+        for fich in *      
+
+        do     
+                
+                for ((i=0; $i < $d; i++))
+                do
+                     #  afficher une bare verticale | avec la couleur blanc
+                      
+                         printf "\e[1;37m"
+                       echo b3 | xxd -p -r | iconv -f ibm850 -t utf-8 
+               
+                        # indentation
+                       printf "    " 
+      
+               done
+
+                        # verifier si le fichier existe  pour afficher |----  avec la couleur blanc
+                if [ -e $fich ] ;then
+                      printf "\e[1;37m" 
+                     echo c3 | xxd -p -r | iconv -f ibm850 -t utf-8 
+                     echo c4 | xxd -p -r | iconv -f ibm850 -t utf-8 #pour soignier affichage 
+                    echo c4 | xxd -p -r | iconv -f ibm850 -t utf-8
+                    echo c4 | xxd -p -r | iconv -f ibm850 -t utf-8
+                    
+                      printf ">"
+                fi 
+
+                        # verifier si le doosier courant un fichier pour l'afficher avec la couleur blanc
+                        if [[ -f "$fich" ]] && [[ $fich != *.jpg ]] && [[ ! -x $fich ]]
+
+                 then
+                        f=$(($f+1))
+                         printf "\e[1;37m$fich\n"
+
+                        # verifier si le doosier courant un repertoire et non pas un lien symbolique  pour l'afficher avec la couleur jaune
+                elif [ -d "$fich" ] && [ ! -h "$fich"  ];then
+                       de=$(($de+1))
+                       printf "\e[1;33m$fich\n"
+      
+                        # verifier si le doosier courant un lien symbolique  pour l'afficher avec la couleur vert
+                elif [ -h "$fich" ];then
+                        de=$(($de+1))
+                       printf "\e[1;36m$fich\n"
+
+                elif [[ $fich == *.jpg ]] || [[ $fich == *.jpeg ]] || [[ $fich == *.png ]] ;then
+                        f=$(($f+1))
+                        printf "\e[1;31m$fich\t"
+                        img2sixel -w 35  $fich
+                elif [ -x "$fich" ];then
+                        f=$(($f1+1))
+                       printf "\e[1;32m$fich\n"
+
+                else
+                        echo ""
+                fi
+                     # verifier si le doosier courant un repertoire et le niveau inferieur au niveau passer en parametre
+                     # pour excuter la fonction recursive
+                if [[ -d "$fich"  ]] && [[ $d -lt $j ]]
+                then
+                     
+                        d=$d+1; 
+                        liste "$fich"
+               cd .. ;
+                fi
+        done
+        let d=$d-1
+}
+function Liste1 {
+         # entrer dans le repertoire passer en parametre
+        cd "$1";
+        # boucler sur le nombre du fichier  existe dans le repertoire courant
+        for fich in *
+
+        do
+
+                for ((i=0; $i < $d; i++))
+                do
+                     #  afficher une bare verticale | avec la couleur blanc
+
+                         printf "\e[1;37m"
+                       echo b3 | xxd -p -r | iconv -f ibm850 -t utf-8
+
+                        # indentation
+                       printf "    "
+
+               done
+
+                        # verifier si le fichier existe  pour afficher |----  avec la couleur blanc
+                if [ -e $fich ] ;then
+                      printf "\e[1;37m"
+                     echo c3 | xxd -p -r | iconv -f ibm850 -t utf-8
+                     echo c4 | xxd -p -r | iconv -f ibm850 -t utf-8 #pour soignier affichage
+                    echo c4 | xxd -p -r | iconv -f ibm850 -t utf-8
+                    echo c4 | xxd -p -r | iconv -f ibm850 -t utf-8
+                printf ">";
+
+                fi
+
+                        # verifier si le doosier courant un fichier pour l'afficher avec la couleur blanc
+                        if [[ -f "$fich" ]] && [[ ! -x $fich ]] && [[ $fich != *.jpg ]] 
+
+                 then
+                        f=$(($f+1))
+                         printf "\e[1;37m$fich\n"
+
+                              # verifier si le doosier courant un repertoire et non pas un lien symbolique  pour l'afficher avec la couleur jaune
+                elif [ -d "$fich" ] && [ ! -h "$fich"  ];then
+                       de=$(($de+1))
+                       printf "\e[1;33m$fich\n"
+
+                        # verifier si le doosier courant un lien symbolique  pour l'afficher avec la couleur vert
+                elif [ -h "$fich" ];then
+                        de=$(($de+1))
+                       printf "\e[1;36m$fich\n"
+
+                elif [ -x "$fich" ];then
+                        f=$(($f+1))
+                       printf "\e[1;32m$fich\n"
+                 elif [[ $fich == *.jpg ]] || [[ $fich == *.jpeg ]] || [[ $fich == *.png ]] ;then
+                        f=$(($f+1))
+                        printf "\e[1;35m$fich\n"
+                else
+                        echo ""
+                fi
+                     # verifier si le doosier courant un repertoire et le niveau inferieur au niveau passer en parametre
+                     # pour excuter la fonction recursive
+                if [[ -d "$fich"  ]] && [[ $d -lt $j ]]
+                then
+
+                        d=$d+1;
+                        Liste1 "$fich"
+               cd .. ;
+                fi
+        done
+        let d=$d-1
+
+                }
+#tester si le repertoire passer en parametre exist ou non
+if [[ ! -e $1 ]] ; then  
+         printf "\e[0;31m"
+        echo "Erreur:ce repertoire n'existe ps " 
+        exit 3;
+fi
+#si le niveau est egale 0 affiche seulement le nom du repertoire passer en parametre et quitter
+if [[ $3 -eq 0 ]] && [[ "$2" = "-a" ||  "$2" = "--avancer" ||  "$2" = "--simple" ||  "$2" = "-s" ]];then        
+printf "\e[1;33m$1\n"   
+exit -1 
+elif [[ $# -eq 1 ]] ;then   #si le niveau n'est pas specifier on affiche tout arbre
+printf "\e[1;33m$1\n" 
+Liste1 "$1" 
+elif [[ $# -eq 3 ]] && [[ "$2" = "--avancer" || "$2" = "-a" ]];then #affichage selon le niveau avec des minuature et une navbarre port le nom du commande
+printf "\e[1;32m"
+echo -e "\e[5m
+ _____________________________________________________________________
+|                                                                     |                                      
+|                    S H O W T R E E                                  |                    
+|_____________________________________________________________________|
+\e[0m"
+printf "\e[1;33m$1\n"
+j=$(($3-1));
+liste "$1"
+elif [[ $# -eq 3 ]] && [[ "$2" = "--simple" || "$2" = "-s" ]];then #affichage selon le niveau sans  minuature
+
+printf "\e[1;33m$1\n"
+
+j=$(($3-1));
+Liste1 "$1"
+#s'il y a un echec de saisie , on affiche un petit message comme quoi la saisie est erronée
+else
+        printf "\e[0;31mErreur:le nombre de paramettre est incorrect\n"
+        exit 2 ;
+fi
+#affichage du nombre de repertoire et de fichier du cet arborescence 
+echo "
+ * $de DIRECTORY : $f FILE * " 
+ #revenir au repertoire de connexion
+cd $che 
+# suppression de la variable d
+unset i d ;
+
